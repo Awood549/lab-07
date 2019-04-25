@@ -13,8 +13,6 @@ const superagent = require('superagent');
 const PORT = process.env.PORT;
 app.use(cors());
 
-
-
 app.get('/testing', (request, response) => {
   console.log('found the testing route');
   response.send('<h1> HEY WORLD </h1>');
@@ -26,8 +24,6 @@ app.get('/location', searchToLatLong)
 
 app.get('/weather', (request, response) => {
   console.log('From weather request', request.query.data.latitude);
-
-
   try {
     const newWeatherData  = searchForWeatherAndTime(request.query.data.formatted_query);
     response.send(newWeatherData);
@@ -43,7 +39,6 @@ app.listen(PORT, () => console.log(`Listen on Port ${PORT}.`));
 //Helper Functions
 function searchToLatLong(request, response) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GEOCODE_API_KEY}`;
-  // const geoData = require('./data/geo.json');
   console.log(url);
   superagent.get(url)
     .then(result => new Location(result.body))
@@ -61,14 +56,13 @@ function searchForWeatherAndTime(query) {
   const weatherSummary = [];
   console.log(weatherSummary);
   const weatherData = require('./data/darksky.json');
+  // const weatherData = `https://api.darksky.net/forecast/${DARKSKY_API_KEY}/37.8267,-122.4233`
 
   weatherData.daily.data.forEach((element) => {
     let weather = new Weather(element);
     weatherSummary.push(weather);
   });
-
   console.log(weatherSummary);
-
   return weatherSummary;
 }
 
