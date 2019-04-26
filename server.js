@@ -50,8 +50,6 @@ function searchForWeatherAndTime(request, response) {
   superagent.get(weatherUrl)
     .then(function(result) {
       let weatherSummary = [];
-      console.log('*********************************************************************************************************');
-      console.log(result.body);
       result.body.daily.data.forEach((element) => {
         let weather = new Weather(element);
         weatherSummary.push(weather);
@@ -74,16 +72,20 @@ function searchForEvents(request, response) {
     .then(function(result) {
       console.log(result.body.events)
       let eventsSummary = [];
-      for(let i = 0; i < 20; i++){
-        
-    }
+      result.body.events.forEach((element) => {
+        let newEvent = new Events(element);
+        eventsSummary.push(newEvent);
+      })
+      return eventsSummary;
     })
+    .then(event => response.send(event))
+    .catch(error => console.error('Error: ',error))
 
 }
 
 function Events(data){
-  this.link = 
-  this.name = 
-  this.event_date = 
-  this.summary = 
+  this.link = data.url;
+  this.name = data.name.text
+  this.event_date = data.start.local
+  this.summary = data.summary
 }
