@@ -38,12 +38,12 @@ app.listen(PORT, () => console.log(`Listen on Port ${PORT}.`));
 
 //Helper Functions
 function searchToLatLong(request, response) {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GEOCODE_API_KEY}`;
-  console.log(url);
-  superagent.get(url)
+  const geoData = `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GEOCODE_API_KEY}`;
+  console.log(geoData);
+  superagent.get(geoData)
     .then(result => new Location(result.body))
     .then(location => response.send(location))
-    .catch(error => console.error('Error: ', error));
+    .catch(error => console.error('Error: ', error))
 }
 
 function Location(data) {
