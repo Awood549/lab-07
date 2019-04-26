@@ -21,25 +21,16 @@ app.get('/testing', (request, response) => {
 
 //API Routes
 app.get('/location', searchToLatLong)
+app.get('/weather', searchForWeatherAndTime)
+app.get('/events', searchForEvents)
 
-app.get('/weather', (request, response) => {
-  console.log('From weather request', request.query.data.latitude);
-  try {
-    const newWeatherData  = searchForWeatherAndTime(request.query.data.formatted_query);
-    response.send(newWeatherData);
-  }
-  catch (error) {
-    console.error(error);
-    response.status(500).send('Status: 500. I don\'t know what happen man!');
-  }
-});
-
-app.listen(PORT, () => console.log(`Listen on Port ${PORT}.`));
+app.listen(PORT, () => console.log(`Listen on Port NEW ${PORT}.`));
 
 //Helper Functions
+//Dealing With Geo Data
 function searchToLatLong(request, response) {
+  console.log('LOCATIONSSSS');
   const geoData = `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GEOCODE_API_KEY}`;
-  console.log(geoData);
   superagent.get(geoData)
     .then(result => new Location(result.body))
     .then(location => response.send(location))
@@ -47,26 +38,52 @@ function searchToLatLong(request, response) {
 }
 
 function Location(data) {
-  this.formatted_query = data.results[0].formatted_address;  
+  this.formatted_query = data.results[0].formatted_address;
   this.latitude = data.results[0].geometry.location.lat;
   this.longitude = data.results[0].geometry.location.lng;
 }
 
-function searchForWeatherAndTime(query) {
-  const weatherSummary = [];
-  console.log(weatherSummary);
-  const weatherData = require('./data/darksky.json');
-  // const weatherData = `https://api.darksky.net/forecast/${DARKSKY_API_KEY}/37.8267,-122.4233`
-
-  weatherData.daily.data.forEach((element) => {
-    let weather = new Weather(element);
-    weatherSummary.push(weather);
-  });
-  console.log(weatherSummary);
-  return weatherSummary;
+//Dealing With Weather
+function searchForWeatherAndTime(request, response) {
+  const weatherUrl = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
+  console.log('HELLO????');
+  superagent.get(weatherUrl)
+    .then(function(result) {
+      let weatherSummary = [];
+      console.log('*********************************************************************************************************');
+      console.log(result.body);
+      result.body.daily.data.forEach((element) => {
+        let weather = new Weather(element);
+        weatherSummary.push(weather);
+      })
+      return weatherSummary;
+    })
+    .then(weather => response.send(weather))
+    .catch(error => console.error('Error: ',error))
 }
 
 function Weather(data) {
   this.time = new Date(data.time*1000).toString();
   this.forecast = data.summary;
+}
+
+//Dealing With Events Data
+function searchForEvents(request, response) {
+  const eventsUrl = `https://www.eventbriteapi.com/v3/events/search/?location.latitude=${request.query.data.latitude}&location.longitude=${request.query.data.longitude}&token=${process.env.EVENTBRITE_API_KEY}`
+  superagent.get(eventsUrl)
+    .then(function(result) {
+      console.log(result.body.events)
+      let eventsSummary = [];
+      for(let i = 0; i < 20; i++){
+        
+    }
+    })
+
+}
+
+function Events(data){
+  this.link = 
+  this.name = 
+  this.event_date = 
+  this.summary = 
 }
