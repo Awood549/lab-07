@@ -39,18 +39,25 @@ app.listen(PORT, () => console.log(`Listen on Port ${PORT}.`));
 //Helper Functions
 function searchToLatLong(request, response) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GEOCODE_API_KEY}`;
-  console.log(url);
   superagent.get(url)
-    .then(result => new Location(result.body))
+  .then(result => new Location(result.body))
     .then(location => response.send(location))
     .catch(error => console.error('Error: ', error));
 }
 
 function Location(data) {
-  this.formatted_query = data.results[0].formatted_address;  
+  console.log('FORMATTED ', data.results[0].formatted_address);
+  this.formatted_query = data.results[0].formatted_address;
   this.latitude = data.results[0].geometry.location.lat;
   this.longitude = data.results[0].geometry.location.lng;
+  // storelatLong();
 }
+
+// function storelatLong(lat, long){
+// const storedLat = lat;
+// const storedLong = long;
+
+// };
 
 function searchForWeatherAndTime(query) {
   const weatherSummary = [];
